@@ -12,7 +12,7 @@ const WEATHER_TTL = 10 * 60 * 1000;
 
 const app = express();
 const corsOptions = {
-  origin: 'http://localhost:3000',
+  origin: 'http://localhost:3000'||'https://vercel.com/hitesh-mohantys-projects/smart-home-frontend/DjFUrqKXqQUE6sDhEE6xnuPEgFhm',
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -275,3 +275,4 @@ setInterval(fetchWeather, WEATHER_TTL);
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Backend running on http://0.0.0.0:${PORT}`);
 });
+
