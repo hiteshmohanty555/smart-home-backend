@@ -11,11 +11,26 @@ const LON = process.env.LON || 85.8245;
 const WEATHER_TTL = 10 * 60 * 1000;
 
 const app = express();
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://smart-home-frontend-smoky.vercel.app"
+];
+
 const corsOptions = {
-  origin: 'http://localhost:3000'||'https://vercel.com/hitesh-mohantys-projects/smart-home-frontend/DjFUrqKXqQUE6sDhEE6xnuPEgFhm',
-  optionsSuccessStatus: 200
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow requests without origin (e.g., mobile apps)
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"), false);
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200,
 };
+
 app.use(cors(corsOptions));
+
 app.use(express.json());
 
 // Serve static files from uploads directory
@@ -275,4 +290,5 @@ setInterval(fetchWeather, WEATHER_TTL);
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Backend running on http://0.0.0.0:${PORT}`);
 });
+
 
