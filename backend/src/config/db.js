@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const { Pool } = require("pg");
 
+// MongoDB connection (for User and Profile models)
 const connectDB = async () => {
   try {
     const mongoURI = process.env.MONGO_URI || "mongodb+srv://infosmartvyapaar_db_user:teamAlpha%4012345@cluster0.qvrg7rl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
@@ -12,25 +13,23 @@ const connectDB = async () => {
   }
 };
 
-// Supabase PostgreSQL Pool - using the provided connection string
+// PostgreSQL pool (for Device and OTP models) - Supabase
 const pool = new Pool({
-  connectionString: "postgresql://postgres.ynqyvtqrstziyhklhcvo:Bapun7608045737@aws-1-ap-northeast-1.pooler.supabase.com:6543/postgres",
+  connectionString: process.env.DATABASE_URL || "postgresql://postgres:Bapun%407608045737@db.ynqyvtqrstziyhklhcvo.supabase.co:5432/postgres",
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 30000,
+  max: 1
 });
 
 pool.on('connect', () => {
-  console.log('✅ Connected to Supabase PostgreSQL database');
+  console.log('Connected to PostgreSQL (Supabase)');
 });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
+  console.error('PostgreSQL pool error:', err);
 });
-
-// Test the connection
-pool.query('SELECT NOW()')
-  .then(() => console.log('✅ PostgreSQL connection test successful'))
-  .catch(err => console.error('❌ PostgreSQL connection test failed:', err.message));
 
 module.exports = { connectDB, pool };

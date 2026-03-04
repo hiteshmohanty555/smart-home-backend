@@ -34,7 +34,8 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Serve static files from uploads directory
-app.use('/uploads', express.static('uploads'));
+const path = require("path");
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 const { connectDB } = require("./config/db");
 connectDB();
@@ -196,14 +197,15 @@ app.post("/api/light", async (req, res) => {
   state.lightOn = status;
   broadcastWS({ type: "device", device: "light", state: status });
 
-  // Also update device status in database if device exists
+  // Update device status in database
   try {
     const { pool } = require("./config/db");
     if (pool) {
-      await pool.query("UPDATE devices SET status = $1 WHERE esp_id = $2 AND type = 'light'", [status ? "ON" : "OFF", "esp32"]);
+      const result = await pool.query("UPDATE devices SET status = $1 WHERE esp_id = $2 AND (type = 'light' OR LOWER(name) LIKE '%light%')", [status ? "ON" : "OFF", "esp32"]);
+      console.log(`Light status updated in database: ${status ? "ON" : "OFF"}, rows affected: ${result.rowCount}`);
     }
   } catch (e) {
-    console.warn("Failed to update device status:", e.message);
+    console.error("Failed to update light status in database:", e.message);
   }
 
   return res.json({ success: true, lightOn: state.lightOn });
@@ -220,10 +222,11 @@ app.post("/api/fan", async (req, res) => {
     const { pool } = require("./config/db");
     if (pool) {
       const fanStatus = speed > 0 ? "ON" : "OFF";
-      await pool.query("UPDATE devices SET status = $1, speed = $2 WHERE esp_id = $3 AND type = 'fan'", [fanStatus, speed, "esp32"]);
+      const result = await pool.query("UPDATE devices SET status = $1, speed = $2 WHERE esp_id = $3 AND (type = 'fan' OR LOWER(name) LIKE '%fan%')", [fanStatus, speed, "esp32"]);
+      console.log(`Fan status updated in database: ${fanStatus}, speed: ${speed}, rows affected: ${result.rowCount}`);
     }
   } catch (e) {
-    console.warn("Failed to update fan device:", e.message);
+    console.error("Failed to update fan status in database:", e.message);
   }
 
   return res.json({ success: true, fanSpeed: state.fanSpeed });
