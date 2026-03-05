@@ -14,15 +14,16 @@ const connectDB = async () => {
 };
 
 // PostgreSQL pool (for Device and OTP models) - Supabase
+const { Pool } = require("pg");
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgresql://postgres:Bapun%407608045737@db.ynqyvtqrstziyhklhcvo.supabase.co:5432/postgres",
+  connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
-  },
-  connectionTimeoutMillis: 5000,
-  idleTimeoutMillis: 30000,
-  max: 1
+  }
 });
+
+module.exports = { pool };
 
 pool.on('connect', () => {
   console.log('Connected to PostgreSQL (Supabase)');
