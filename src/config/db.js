@@ -1,10 +1,13 @@
 const mongoose = require("mongoose");
 const { Pool } = require("pg");
 
-// MongoDB connection (for User and Profile models)
+// MongoDB connection
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGO_URI || "mongodb+srv://infosmartvyapaar_db_user:teamAlpha%4012345@cluster0.qvrg7rl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    const mongoURI =
+      process.env.MONGO_URI ||
+      "mongodb+srv://infosmartvyapaar_db_user:teamAlpha%4012345@cluster0.qvrg7rl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
     await mongoose.connect(mongoURI);
     console.log("MongoDB connected");
   } catch (err) {
@@ -13,24 +16,25 @@ const connectDB = async () => {
   }
 };
 
-// PostgreSQL pool (for Device and OTP models) - Supabase
-const { Pool } = require("pg");
-
+// PostgreSQL connection (Supabase)
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
+  connectionString:
+    process.env.DATABASE_URL ||
+    "postgresql://postgres:Bapun%407608045737@db.ynqyvtqrstziyhklhcvo.supabase.co:5432/postgres",
   ssl: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+  },
+  connectionTimeoutMillis: 5000,
+  idleTimeoutMillis: 30000,
+  max: 1,
 });
 
-module.exports = { pool };
-
-pool.on('connect', () => {
-  console.log('Connected to PostgreSQL (Supabase)');
+pool.on("connect", () => {
+  console.log("Connected to PostgreSQL (Supabase)");
 });
 
-pool.on('error', (err) => {
-  console.error('PostgreSQL pool error:', err);
+pool.on("error", (err) => {
+  console.error("PostgreSQL pool error:", err);
 });
 
 module.exports = { connectDB, pool };
